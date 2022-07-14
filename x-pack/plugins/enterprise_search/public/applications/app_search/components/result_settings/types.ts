@@ -29,6 +29,7 @@ export interface FieldResultSetting {
   snippet: boolean;
   snippetSize?: number;
   snippetFallback: boolean;
+  allowSnippet: boolean;
 }
 
 export type FieldResultSettingObject = Record<string, FieldResultSetting | {}>;

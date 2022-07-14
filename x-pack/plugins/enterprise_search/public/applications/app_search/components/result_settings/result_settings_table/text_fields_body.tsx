@@ -66,45 +66,49 @@ export const TextFieldsBody: React.FC = () => {
               clearAction={clearRawSizeForField}
             />
           </EuiTableRowCell>
-          <EuiTableRowCellCheckbox>
-            <EuiCheckbox
-              aria-label={i18n.translate(
-                'xpack.enterpriseSearch.appSearch.engine.resultSettings.table.snippetAriaLabel',
-                { defaultMessage: 'Toggle text snippet' }
-              )}
-              data-test-subj="ResultSettingSnippetTextBox"
-              id={`${fieldName}-snippet}`}
-              checked={!!fieldSettings.snippet}
-              onChange={() => {
-                toggleSnippetForField(fieldName);
-              }}
-            />
-          </EuiTableRowCellCheckbox>
-          <EuiTableRowCellCheckbox>
-            <EuiCheckbox
-              aria-label={i18n.translate(
-                'xpack.enterpriseSearch.appSearch.engine.resultSettings.table.snippetFallbackAriaLabel',
-                { defaultMessage: 'Toggle snippet fallback' }
-              )}
-              data-test-subj="ResultSettingFallbackTextBox"
-              id={`${fieldName}-snippetFallback}`}
-              checked={fieldSettings.snippetFallback}
-              disabled={!fieldSettings.snippet}
-              onChange={() => {
-                toggleSnippetFallbackForField(fieldName);
-              }}
-            />
-          </EuiTableRowCellCheckbox>
-          <EuiTableRowCell align="center" textOnly={false}>
-            <FieldNumber
-              fieldName={fieldName}
-              fieldEnabledProperty="snippet"
-              fieldSizeProperty="snippetSize"
-              fieldSettings={fieldSettings}
-              updateAction={updateSnippetSizeForField}
-              clearAction={clearSnippetSizeForField}
-            />
-          </EuiTableRowCell>
+          {fieldSettings.allowSnippet && (
+            <>
+              <EuiTableRowCellCheckbox>
+                <EuiCheckbox
+                  aria-label={i18n.translate(
+                    'xpack.enterpriseSearch.appSearch.engine.resultSettings.table.snippetAriaLabel',
+                    { defaultMessage: 'Toggle text snippet' }
+                  )}
+                  data-test-subj="ResultSettingSnippetTextBox"
+                  id={`${fieldName}-snippet}`}
+                  checked={!!fieldSettings.snippet}
+                  onChange={() => {
+                    toggleSnippetForField(fieldName);
+                  }}
+                />
+              </EuiTableRowCellCheckbox>
+              <EuiTableRowCellCheckbox>
+                <EuiCheckbox
+                  aria-label={i18n.translate(
+                    'xpack.enterpriseSearch.appSearch.engine.resultSettings.table.snippetFallbackAriaLabel',
+                    { defaultMessage: 'Toggle snippet fallback' }
+                  )}
+                  data-test-subj="ResultSettingFallbackTextBox"
+                  id={`${fieldName}-snippetFallback}`}
+                  checked={fieldSettings.snippetFallback}
+                  disabled={!fieldSettings.snippet}
+                  onChange={() => {
+                    toggleSnippetFallbackForField(fieldName);
+                  }}
+                />
+              </EuiTableRowCellCheckbox>
+              <EuiTableRowCell align="center" textOnly={false}>
+                <FieldNumber
+                  fieldName={fieldName}
+                  fieldEnabledProperty="snippet"
+                  fieldSizeProperty="snippetSize"
+                  fieldSettings={fieldSettings}
+                  updateAction={updateSnippetSizeForField}
+                  clearAction={clearSnippetSizeForField}
+                />
+              </EuiTableRowCell>
+            </>
+          )}
         </EuiTableRow>
       ))}
     </>

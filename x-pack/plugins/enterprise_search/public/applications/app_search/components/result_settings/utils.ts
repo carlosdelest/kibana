@@ -7,7 +7,7 @@
 
 import { isEqual } from 'lodash';
 
-import { Schema } from '../../../shared/schema/types';
+import { AdvancedSchema, Schema } from '../../../shared/schema/types';
 
 import { DEFAULT_FIELD_SETTINGS, DISABLED_FIELD_SETTINGS } from './constants';
 import {
@@ -27,7 +27,10 @@ const updateAllFields = (
   );
 };
 
-const convertToFieldResultSetting = (serverFieldResultSetting: ServerFieldResultSetting) => {
+const convertToFieldResultSetting = (
+  serverFieldResultSetting: ServerFieldResultSetting,
+  allowSnippet: boolean
+) => {
   const fieldResultSetting: FieldResultSetting = {
     raw: !!serverFieldResultSetting.raw,
     snippet: !!serverFieldResultSetting.snippet,
@@ -36,6 +39,7 @@ const convertToFieldResultSetting = (serverFieldResultSetting: ServerFieldResult
       typeof serverFieldResultSetting.snippet === 'object' &&
       serverFieldResultSetting.snippet.fallback
     ),
+    allowSnippet,
   };
 
   if (
@@ -64,13 +68,16 @@ export const resetAllFields = (fields: FieldResultSettingObject) =>
 
 export const convertServerResultFieldsToResultFields = (
   serverResultFields: ServerFieldResultSettingObject,
-  schema: Schema
+  advancedSchema: AdvancedSchema
 ) => {
-  const resultFields: FieldResultSettingObject = Object.keys(schema).reduce(
+  const resultFields: FieldResultSettingObject = Object.keys(advancedSchema).reduce(
     (acc: FieldResultSettingObject, fieldName: string) => ({
       ...acc,
       [fieldName]: serverResultFields[fieldName]
-        ? convertToFieldResultSetting(serverResultFields[fieldName])
+        ? convertToFieldResultSetting(
+            serverResultFields[fieldName],
+            !!advancedSchema[fieldName].capabilities.snippet
+          )
         : DISABLED_FIELD_SETTINGS,
     }),
     {}

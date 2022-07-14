@@ -12,7 +12,7 @@ import { i18n } from '@kbn/i18n';
 
 import { flashAPIErrors, flashSuccessToast } from '../../../shared/flash_messages';
 import { HttpLogic } from '../../../shared/http';
-import { Schema, SchemaConflicts, SchemaType } from '../../../shared/schema/types';
+import { AdvancedSchema, Schema, SchemaConflicts, SchemaType } from '../../../shared/schema/types';
 import { EngineLogic } from '../engine';
 
 import { DEFAULT_SNIPPET_SIZE } from './constants';
@@ -37,10 +37,12 @@ interface ResultSettingsActions {
   initializeResultFields(
     serverResultFields: ServerFieldResultSettingObject,
     schema: Schema,
+    advancedSchema: AdvancedSchema,
     schemaConflicts?: SchemaConflicts
   ): {
     resultFields: FieldResultSettingObject;
     schema: Schema;
+    advancedSchema: AdvancedSchema;
     schemaConflicts: SchemaConflicts;
   };
   clearAllFields(): void;
@@ -69,6 +71,7 @@ interface ResultSettingsValues {
   resultFields: FieldResultSettingObject;
   lastSavedResultFields: FieldResultSettingObject;
   schema: Schema;
+  advancedSchema: AdvancedSchema;
   schemaConflicts: SchemaConflicts;
   // Selectors
   textResultFields: FieldResultSettingObject;
@@ -100,8 +103,11 @@ const RESET_CONFIRMATION_MESSAGE = i18n.translate(
 export const ResultSettingsLogic = kea<MakeLogicType<ResultSettingsValues, ResultSettingsActions>>({
   path: ['enterprise_search', 'app_search', 'result_settings_logic'],
   actions: () => ({
-    initializeResultFields: (serverResultFields, schema, schemaConflicts) => {
-      const resultFields = convertServerResultFieldsToResultFields(serverResultFields, schema);
+    initializeResultFields: (serverResultFields, schema, advancedSchema, schemaConflicts) => {
+      const resultFields = convertServerResultFieldsToResultFields(
+        serverResultFields,
+        advancedSchema
+      );
 
       return {
         resultFields,
@@ -298,15 +304,22 @@ export const ResultSettingsLogic = kea<MakeLogicType<ResultSettingsValues, Resul
       try {
         const {
           schema,
+          advancedSchema,
           schemaConflicts,
           searchSettings: { result_fields: serverFieldResultSettings },
         } = await http.get<{
           schema: Record<string, SchemaType>;
+          advancedSchema: AdvancedSchema;
           schemaConflicts?: SchemaConflicts;
           searchSettings: { result_fields: Record<string, ServerFieldResultSetting> };
         }>(url);
 
-        actions.initializeResultFields(serverFieldResultSettings, schema, schemaConflicts);
+        actions.initializeResultFields(
+          serverFieldResultSettings,
+          schema,
+          advancedSchema,
+          schemaConflicts
+        );
       } catch (e) {
         flashAPIErrors(e);
       }
@@ -335,7 +348,11 @@ export const ResultSettingsLogic = kea<MakeLogicType<ResultSettingsValues, Resul
             }),
           });
 
-          actions.initializeResultFields(response.result_fields, values.schema);
+          actions.initializeResultFields(
+            response.result_fields,
+            values.schema,
+            values.advancedSchema
+          );
           flashSuccessToast(
             i18n.translate(
               'xpack.enterpriseSearch.appSearch.engine.resultSettings.saveSuccessMessage',
